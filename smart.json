@@ -1,0 +1,9 @@
+{
+  "name": "template-extension",
+  "description": "Replace already defined templates, inherit helpers and events from other templates",
+  "homepage": "https://github.com/aldeed/meteor-template-extension",
+  "author": "Eric Dobbertin (http://dairystatedesigns.com)",
+  "version": "0.1.0",
+  "git": "https://github.com/aldeed/meteor-template-extension.git",
+  "packages": {}
+}
