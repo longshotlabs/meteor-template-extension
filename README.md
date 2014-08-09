@@ -8,6 +8,7 @@ A smart package for Meteor that allows you to:
 * override a template but keep it's helpers and events.
 * inherit the helpers from another template.
 * inherit the events from another template.
+* extend abstract templates and overwrite their events/helpers
 
 ## Prerequisites
 
@@ -105,5 +106,44 @@ Template.foo2.inheritsEventsFromTemplate("foo");
 ```
 
 In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo".
+
+## copyAs
+
+*html*
+
+```html
+<template name="abstract_foo">
+{{#each images}}
+   <img src="{{src}}" alt="{{title}}" />
+{{/each}}
+</template>
+```
+
+*client.js*
+
+```js
+Template.abstract_foo.helpers({
+    images: function () {
+        return [];
+    }
+});
+
+Template.abstract_foo.copyAs('foo');
+Template.abstract_foo.copyAs('bar');
+
+Template.foo.helpers({
+    images: function () {
+        return Meteor.call('getFooImages');
+    }
+});
+
+Template.bar.helpers({
+    images: function () {
+        return Meteor.call('getBarImages');
+    }
+});
+```
+
+In this example, we defined "foo" & "bar" templates that inherit their HTML markup from `abstract_foo`. We overwritten `images` helper to provide template-specific images provided by different Meteor methods.
 
 [![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/aldeed/)
