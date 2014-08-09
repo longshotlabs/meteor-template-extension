@@ -38,3 +38,15 @@ Template.prototype.inheritsEventsFromTemplate = function (otherTemplateName) {
 
   Template[self.__templateName].__eventMaps = otherTemplate.__eventMaps;
 };
+
+Template.prototype.copyAs = function (newTemplateName) {
+    var self = this;
+
+    var newTemplate = Template.__define__(newTemplateName, self.__render);
+    newTemplate.__initView = self.__initView;
+
+    Template[newTemplateName] = newTemplate;
+
+    newTemplate.inheritsHelpersFromTemplate(self.__templateName);
+    newTemplate.inheritsEventsFromTemplate(self.__templateName);
+};
