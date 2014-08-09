@@ -112,6 +112,11 @@ In this example, both templates are rendered. Both use the `bar` helper defined 
 *html*
 
 ```html
+<body>
+  {{> foo}}
+  {{> bar}}
+</body>
+
 <template name="abstract_foo">
 {{#each images}}
    <img src="{{src}}" alt="{{title}}" />
