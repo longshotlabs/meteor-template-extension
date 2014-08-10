@@ -149,6 +149,9 @@ Template.bar.helpers({
 });
 ```
 
-In this example, we defined "foo" & "bar" templates that inherit their HTML markup from `abstract_foo`. We overwritten `images` helper to provide template-specific images provided by different Meteor methods.
+In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods.
 
-[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/aldeed/)
+## Contributors
+
+* @aldeed ([Support via Gittip](https://www.gittip.com/aldeed/))
+* @grabbou
