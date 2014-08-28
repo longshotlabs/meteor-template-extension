@@ -14,16 +14,9 @@ Requires Meteor 0.8.3+
 
 ## Installation
 
-Work in progress. For now, not on Atmosphere. Put this in the packages section of your smart.json:
-
+```bash
+$ meteor add aldeed:template-extension
 ```
-"template-extension": {
-  "git": "https://github.com/aldeed/meteor-template-extension",
-  "branch": "master"
-}
-```
-
-And then run `mrt add template-extension`
 
 ## replaces
 
