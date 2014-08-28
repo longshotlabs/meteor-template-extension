@@ -1,4 +1,4 @@
-Template.prototype.replacesTemplate = function (replacedTemplateName) {
+Template.prototype.replaces = function (replacedTemplateName) {
   var self = this;
 
   var replacedTemplate = Template[replacedTemplateName];
@@ -10,7 +10,7 @@ Template.prototype.replacesTemplate = function (replacedTemplateName) {
   replacedTemplate.__render = Template[self.__templateName].__render;
 };
 
-Template.prototype.inheritsHelpersFromTemplate = function (otherTemplateName) {
+Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
   var self = this;
 
   var otherTemplate = Template[otherTemplateName];
@@ -27,7 +27,7 @@ Template.prototype.inheritsHelpersFromTemplate = function (otherTemplateName) {
   }
 };
 
-Template.prototype.inheritsEventsFromTemplate = function (otherTemplateName) {
+Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
   var self = this;
 
   var otherTemplate = Template[otherTemplateName];
@@ -47,6 +47,6 @@ Template.prototype.copyAs = function (newTemplateName) {
 
     Template[newTemplateName] = newTemplate;
 
-    newTemplate.inheritsHelpersFromTemplate(self.__templateName);
-    newTemplate.inheritsEventsFromTemplate(self.__templateName);
+    newTemplate.inheritsHelpersFrom(self.__templateName);
+    newTemplate.inheritsEventsFrom(self.__templateName);
 };

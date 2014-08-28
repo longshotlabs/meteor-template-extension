@@ -1,8 +1,6 @@
 template-extension
 =========================
 
-WORK IN PROGRESS
-
 A smart package for Meteor that allows you to:
 
 * override a template but keep it's helpers and events.
@@ -27,7 +25,7 @@ Work in progress. For now, not on Atmosphere. Put this in the packages section o
 
 And then run `mrt add template-extension`
 
-## replacesTemplate
+## replaces
 
 *html*
 
@@ -60,14 +58,14 @@ Template.foo.events({
   }
 });
 
-Template.foo2.replacesTemplate("foo");
+Template.foo2.replaces("foo");
 ```
 
 Whenever `{{> foo}}` is used, the contents of the `foo2` template will be shown instead. The `bar` helper defined on "foo" will be used to resolve `{{bar}}`. Clicking the button will still fire the event defined on "foo".
 
 This is useful when a package you are using defines a template for something and you'd like to adjust some things in that template for your app.
 
-## inheritsHelpersFromTemplate and inheritsEventsFromTemplate
+## inheritsHelpersFrom and inheritsEventsFrom
 
 *html*
 
@@ -101,8 +99,8 @@ Template.foo.events({
   }
 });
 
-Template.foo2.inheritsHelpersFromTemplate("foo");
-Template.foo2.inheritsEventsFromTemplate("foo");
+Template.foo2.inheritsHelpersFrom("foo");
+Template.foo2.inheritsEventsFrom("foo");
 ```
 
 In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo".
