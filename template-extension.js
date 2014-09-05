@@ -2,12 +2,14 @@ Template.prototype.replaces = function (replacedTemplateName) {
   var self = this;
 
   var replacedTemplate = Template[replacedTemplateName];
+
   if (!replacedTemplate) {
     console.warn("Can't replace template " + replacedTemplateName + " because it hasn't been defined yet.");
     return;
   }
-
-  replacedTemplate.__render = Template[self.__templateName].__render;
+  // post 0.9.1 kludge to get template name from viewName
+  var name = self.viewName.split('.')[1];
+  replacedTemplate.renderFunction = Template[name].renderFunction;
 };
 
 Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
