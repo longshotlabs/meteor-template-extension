@@ -8,7 +8,7 @@ Template.prototype.replaces = function (replacedTemplateName) {
     return;
   }
   // post 0.9.1 kludge to get template name from viewName
-  var name = self.viewName.split('.')[1];
+  var name = self.viewName.replace('Template.','');
   replacedTemplate.renderFunction = Template[name].renderFunction;
 };
 
