@@ -18,6 +18,8 @@ Requires Meteor 0.8.3+
 $ meteor add aldeed:template-extension
 ```
 
+Note that versions 2.0.0+ of this package will work only with Meteor 0.9.1+ and are not backwards compatible with older versions of Meteor.
+
 ## replaces
 
 *html*
