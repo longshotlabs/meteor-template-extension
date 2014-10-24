@@ -3,14 +3,17 @@ template-extension
 
 A smart package for Meteor that allows you to:
 
+* iterate over all defined templates easily.
+* attach multiple created/rendered/destroyed hooks to a template.
+* attach a created/rendered/destroyed hook to all templates.
 * override a template but keep it's helpers and events.
 * inherit the helpers from another template.
 * inherit the events from another template.
-* extend abstract templates and overwrite their events/helpers
+* extend abstract templates and overwrite their events/helpers.
 
 ## Prerequisites
 
-Requires Meteor 0.8.3+
+Requires Meteor 0.9.3+
 
 ## Installation
 
@@ -18,9 +21,40 @@ Requires Meteor 0.8.3+
 $ meteor add aldeed:template-extension
 ```
 
-Note that versions 2.0.0+ of this package will work only with Meteor 0.9.1+ and are not backwards compatible with older versions of Meteor.
+## Template.forEach(callback)
 
-## replaces
+Call `callback` once for each defined template. Generally, you'll want to call this in a `Meteor.startup` function or sometime after all templates have been loaded.
+
+## Template.onCreated / Template.onRendered / Template.onDestroyed
+
+Run a function whenever *any* template is created/rendered/destroyed.
+
+```js
+Template.onRendered(function () {
+  // Initialize all datepicker inputs whenever any template is rendered
+  this.$('.datepicker').datepicker();
+});
+```
+
+## hooks(options)
+
+Use this instead of setting created/rendered/destroyed property directly. You can call it multiple times to attach multiple hooks to the same template.
+
+```js
+Template.foo.hooks({
+  created: function () {
+    console.log("foo created");
+  },
+  rendered: function () {
+    console.log("foo rendered");
+  },
+  destroyed: function () {
+    console.log("foo destroyed");
+  }
+});
+```
+
+## replaces(templateName)
 
 *html*
 
@@ -60,7 +94,7 @@ Whenever `{{> foo}}` is used, the contents of the `foo2` template will be shown 
 
 This is useful when a package you are using defines a template for something and you'd like to adjust some things in that template for your app.
 
-## inheritsHelpersFrom and inheritsEventsFrom
+## inheritsHelpersFrom(templateName) and inheritsEventsFrom(templateName)
 
 *html*
 
@@ -100,7 +134,7 @@ Template.foo2.inheritsEventsFrom("foo");
 
 In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo".
 
-## copyAs
+## copyAs(newTemplateName)
 
 *html*
 
@@ -146,5 +180,5 @@ In this example, we defined "foo" and "bar" templates that get their HTML markup
 
 ## Contributors
 
-* @aldeed ([Support via Gittip](https://www.gittip.com/aldeed/))
+* @aldeed ([Support via Gratipay](https://gratipay.com/aldeed/))
 * @grabbou
