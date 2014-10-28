@@ -111,9 +111,16 @@ Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
 
   var name = parseName(self.viewName);
   var thisTemplate = Template[name];
-  for (var h in otherTemplate) {
-    if (otherTemplate.hasOwnProperty(h) && (h.slice(0, 2) !== "__") && h !== "viewName" && h !== "renderFunction") {
-      thisTemplate[h] = otherTemplate[h];
+  if (otherTemplate.__helpers) {
+    thisTemplate.__helpers = $.extend({}, otherTemplate.__helpers);
+  }
+
+  else {
+    // backwards compatibility; pre-0.9.4 Meteor
+    for (var h in otherTemplate) {
+      if (otherTemplate.hasOwnProperty(h) && (h.slice(0, 2) !== "__") && h !== "viewName" && h !== "renderFunction") {
+        thisTemplate[h] = otherTemplate[h];
+      }
     }
   }
 };
