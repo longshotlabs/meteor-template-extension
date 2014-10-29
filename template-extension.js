@@ -112,7 +112,7 @@ Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
   var name = parseName(self.viewName);
   var thisTemplate = Template[name];
   if (otherTemplate.__helpers) {
-    thisTemplate.__helpers = $.extend({}, otherTemplate.__helpers);
+    thisTemplate.__helpers = $.extend({}, thisTemplate.__helpers, otherTemplate.__helpers);
   }
 
   else {
