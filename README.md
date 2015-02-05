@@ -6,7 +6,7 @@ A smart package for Meteor that allows you to:
 * iterate over all defined templates easily.
 * attach multiple created/rendered/destroyed hooks to a template.
 * attach a created/rendered/destroyed hook to all templates.
-* override a template but keep it's helpers and events.
+* override a template but keep its helpers and events.
 * inherit the helpers from another template.
 * inherit the events from another template.
 * extend abstract templates and overwrite their events/helpers.
