@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aldeed/meteor-template-extension.svg)](https://travis-ci.org/aldeed/meteor-template-extension)
+
 template-extension
 =========================
 
