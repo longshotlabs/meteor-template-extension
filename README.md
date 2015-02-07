@@ -16,7 +16,7 @@ A smart package for Meteor that allows you to:
 
 ## Prerequisites
 
-Requires Meteor 0.9.3+
+Requires Meteor 1.0+
 
 ## Installation
 

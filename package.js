@@ -1,11 +1,11 @@
 Package.describe({
   name: "aldeed:template-extension",
   summary: "Adds template features currently missing from the templating package",
-  version: "3.1.1",
+  version: "3.2.0",
   git: "https://github.com/aldeed/meteor-template-extension.git"
 });
 
-Package.on_use(function(api) {
+Package.onUse(function(api) {
   api.versionsFrom('METEOR@1.0');
   api.use([
     'templating',
@@ -14,10 +14,10 @@ Package.on_use(function(api) {
     'tracker'
   ], 'client');
 
-  api.add_files(['template-extension.js'], 'client');
+  api.addFiles(['template-extension.js'], 'client');
 });
 
-Package.on_test(function(api) {
+Package.onTest(function(api) {
   api.use([
     'aldeed:template-extension',
     'templating',
@@ -26,5 +26,5 @@ Package.on_test(function(api) {
     'ejson'
   ], 'client');
 
-  api.add_files(['tests.html', 'tests.js'], 'client');
+  api.addFiles(['tests.html', 'tests.js'], 'client');
 });
