@@ -202,11 +202,11 @@ Blaze._parentData = function (height, _functionWrapped) {
   }
 
   var theWith = Blaze.getView('with');
-  var data = function () {
-    return theWith.dataVar.get();
+  var test = function () {
+    return height(theWith.dataVar.get());
   };
   while (theWith) {
-    if (height(Tracker.nonreactive(data))) break;
+    if (Tracker.nonreactive(test)) break;
     theWith = Blaze.getView(theWith, 'with');
   }
 
