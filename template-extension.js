@@ -28,7 +28,7 @@ Meteor.startup(function () {
 
     for (i = hookTypes.length - 1; i >= 0; i--) {
       defineHook(hookTypes[i]);
-    };
+    }
   });
 });
 
@@ -83,7 +83,7 @@ Template.prototype.hooks = function (hooks) {
       templateHooks[type][name] = templateHooks[type][name] || [];
       templateHooks[type][name].push(hooks[type]);
     }
-  };
+  }
 };
 
 Template.prototype.replaces = function (replacedTemplateName) {
@@ -234,7 +234,7 @@ function runGlobalHooks(type, template, args) {
   var i, h = globalHooks[type], hl = h.length;
   for (i = 0; i < hl; i++) {
     h[i].apply(template, args);
-  };
+  }
 }
 
 function runTemplateHooks(type, template, args) {
@@ -242,5 +242,5 @@ function runTemplateHooks(type, template, args) {
   var hl = h ? h.length : 0;
   for (i = 0; i < hl; i++) {
     h[i].apply(template, args);
-  };
+  }
 }
