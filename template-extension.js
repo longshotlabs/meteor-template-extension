@@ -149,6 +149,76 @@ Template.prototype.copyAs = function (newTemplateName) {
   newTemplate.inheritsEventsFrom(name);
 };
 
+// Allow easy access to a template instance field when you do not know exactly
+// on which instance (this, or parent, or parent's parent, ...) a field is defined.
+// This allows easy restructuring of templates in HTML, moving things to included
+// templates without having to change everywhere in the code instance levels.
+// It also allows different structures of templates, when once template is included
+// at one level, and some other time at another. Levels do not matter anymore, just
+// that the field exists somewhere.
+Blaze.TemplateInstance.prototype.get = function (fieldName) {
+  var template = this;
+  while (template) {
+    if (fieldName in template) {
+      return template[fieldName];
+    }
+    template = template.parent();
+  }
+};
+
+// Access parent template instance. "height" is the number of levels beyond the
+// current template instance to look.
+Blaze.TemplateInstance.prototype.parent = function(height) {
+  // If height is null or undefined, we default to 1, the first parent.
+  if (height == null) {
+    height = 1;
+  }
+
+  var i = 0;
+  var template = this;
+  while (i < height && template) {
+    var view = template.view.parentView;
+    while (view && !view.template) {
+      view = view.parentView;
+    }
+    if (!view) {
+      return null;
+    }
+    // Body view has template field, but not templateInstance,
+    // which more or less signals that we reached the top.
+    template = typeof view.templateInstance === 'function' ? view.templateInstance() : null;
+    i++;
+  }
+  return template;
+};
+
+// Allow to specify a function to test parent data for at various
+// levels, instead of specifying a fixed number of levels to traverse.
+var originalParentData = Blaze._parentData;
+Blaze._parentData = function (height, _functionWrapped) {
+  // If height is not a function, simply call original implementation.
+  if (typeof height !== 'function') {
+    return originalParentData(height, _functionWrapped);
+  }
+
+  var theWith = Blaze.getView('with');
+  var test = function () {
+    return height(theWith.dataVar.get());
+  };
+  while (theWith) {
+    if (Tracker.nonreactive(test)) break;
+    theWith = Blaze.getView(theWith, 'with');
+  }
+
+  // _functionWrapped is internal and will not be
+  // specified with non numeric height, so we ignore it.
+  if (!theWith) return null;
+  // This registers a Tracker dependency.
+  return theWith.dataVar.get();
+};
+
+Template.parentData = Blaze._parentData;
+
 /* PRIVATE */
 
 function parseName(name) {

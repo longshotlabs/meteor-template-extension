@@ -10,6 +10,9 @@ A smart package for Meteor that allows you to:
 * inherit the helpers from another template.
 * inherit the events from another template.
 * extend abstract templates and overwrite their events/helpers.
+* use `template.parent(numLevels)` to access a parent template instance.
+* use `template.get(fieldName)` to access the first field named `fieldName` in the current or ancestor template instances.
+* pass a function to `Template.parentData(fun)` to get the first data context which passes the test.
 
 ## Prerequisites
 
@@ -178,7 +181,32 @@ Template.bar.helpers({
 
 In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods.
 
+## template.parent(numLevels)
+
+On template instances you can now use `parent(numLevels)` method to access a parent template instance.
+`numLevels` is the number of levels beyond the current template instance to look. Defaults to 1.
+
+## template.get(fieldName)
+
+To not have to hard-code the number of levels when accessing parent template instances you can use
+`get(fieldName)` method which returns the value of the first field named `fieldName` in the current
+or ancestor template instances, traversed in the hierarchical order. This pattern makes it easier to
+refactor templates without having to worry about changes to number of levels.
+
+## Template.parentData(fun)
+
+`Template.parentData` now accepts a function which will be used to test each data context when traversing
+them in the hierarchical order, returning the first data context for which the test function returns `true`.
+This is useful so that you do not have to hard-code the number of levels when accessing parent data contexts,
+but you can use a more logic-oriented approach. For example, search for the first data context which contains
+a given field. Or:
+
+```js
+Template.parentData(function (data) {return data instanceof MyDocument;});
+```
+
 ## Contributors
 
 * @aldeed ([Support via Gratipay](https://gratipay.com/aldeed/))
 * @grabbou
+* @mitar
