@@ -217,6 +217,8 @@ Blaze._parentData = function (height, _functionWrapped) {
   return theWith.dataVar.get();
 };
 
+Template.parentData = Blaze._parentData;
+
 /* PRIVATE */
 
 function parseName(name) {

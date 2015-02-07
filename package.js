@@ -6,12 +6,25 @@ Package.describe({
 });
 
 Package.on_use(function(api) {
+  api.versionsFrom('METEOR@1.0');
   api.use([
-    'templating@1.0.0',
-    'blaze@2.0.0',
-    'jquery@1.0.0',
-    'tracker@1.0.0'
-  ]);
+    'templating',
+    'blaze',
+    'jquery',
+    'tracker'
+  ], 'client');
 
   api.add_files(['template-extension.js'], 'client');
+});
+
+Package.on_test(function(api) {
+  api.use([
+    'aldeed:template-extension',
+    'templating',
+    'tinytest',
+    'test-helpers',
+    'ejson'
+  ], 'client');
+
+  api.add_files(['tests.html', 'tests.js'], 'client');
 });
