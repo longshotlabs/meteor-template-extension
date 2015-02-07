@@ -202,7 +202,7 @@ but you can use a more logic-oriented approach. For example, search for the firs
 a given field. Or:
 
 ```js
-Template.parentData(function (data) {return data instanceof MyDocument;});
+var data = Template.parentData(function (data) {return data instanceof MyDocument;});
 ```
 
 ## Contributors
