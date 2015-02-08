@@ -3,9 +3,13 @@
 </template>
 
 <template name="testTemplate1">
-  {{> testTemplate2 data}}
+  {{#noop}}{{> testTemplate2 data}}{{/noop}}
 </template>
 
 <template name="testTemplate2">
-  {{testInstance}}{{testData}}
+  {{testInstanceGet}}{{testInstanceParent}}{{testData}}
+</template>
+
+<template name="noop">
+  {{> Template.contentBlock}}
 </template>

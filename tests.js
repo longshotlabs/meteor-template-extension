@@ -1,5 +1,10 @@
-var testingInstance = false;
+var testingInstanceGet = false;
+var testingInstanceParent = false;
 var testingData = false;
+
+Template.noop.created = function () {
+  this._testTemplateFieldNoop = 50;
+};
 
 Template.testTemplate.created = function () {
   this._testTemplateField = 42;
@@ -27,8 +32,21 @@ Template.testTemplate2.created = function () {
 };
 
 Template.testTemplate2.helpers({
-  testInstance: function () {
-    if (testingInstance) return EJSON.stringify(Template.instance().get(this.fieldName));
+  testInstanceGet: function () {
+    if (testingInstanceGet) return EJSON.stringify(Template.instance().get(this.fieldName));
+  },
+
+  testInstanceParent: function () {
+    if (!testingInstanceParent) return;
+
+    var ancestors = [];
+    var template = Template.instance();
+    while (template) {
+      // Only fields which start with _.
+      ancestors.push(_.pick(template, _.filter(_.keys(template), function (key) {return key.substr(0, 1) === '_';})));
+      template = template.parent(this.numLevels, this.includeBlockHelpers);
+    }
+    return EJSON.stringify(ancestors);
   },
 
   testData: function () {
@@ -36,17 +54,36 @@ Template.testTemplate2.helpers({
   }
 });
 
-// Tests both get and parent because get uses parent.
 Tinytest.add('template-extension - get', function (test) {
-  testingInstance = true;
+  testingInstanceGet = true;
   try {
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {fieldName: '_testTemplateField'}), '42');
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {fieldName: '_testTemplateField1'}), '43');
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {fieldName: '_testTemplateField3'}), '44');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {fieldName: '_testTemplateFieldNoop'}), '50');
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {fieldName: '_nonexistent'}), '');
   }
   finally {
-    testingInstance = false;
+    testingInstanceGet = false;
+  }
+});
+
+Tinytest.add('template-extension - parent', function (test) {
+  testingInstanceParent = true;
+  try {
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 1, includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 1, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateFieldNoop":50},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateFieldNoop":50},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: undefined, includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: undefined, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateFieldNoop":50},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: null, includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: null, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateFieldNoop":50},{"_testTemplateField1":43},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 2, includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField":42}]');
+    test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 2, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateField1":43}]');
+  }
+  finally {
+    testingInstanceParent = false;
   }
 });
 

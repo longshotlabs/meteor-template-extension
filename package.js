@@ -23,7 +23,8 @@ Package.onTest(function(api) {
     'templating',
     'tinytest',
     'test-helpers',
-    'ejson'
+    'ejson',
+    'underscore'
   ], 'client');
 
   api.addFiles(['tests.html', 'tests.js'], 'client');

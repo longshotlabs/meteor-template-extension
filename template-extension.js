@@ -162,13 +162,15 @@ Blaze.TemplateInstance.prototype.get = function (fieldName) {
     if (fieldName in template) {
       return template[fieldName];
     }
-    template = template.parent();
+    template = template.parent(1, true);
   }
 };
 
 // Access parent template instance. "height" is the number of levels beyond the
-// current template instance to look.
-Blaze.TemplateInstance.prototype.parent = function(height) {
+// current template instance to look. By default block helper template instances
+// are skipped, but if "includeBlockHelpers" is set to true, they are not.
+// See https://github.com/meteor/meteor/issues/3071
+Blaze.TemplateInstance.prototype.parent = function(height, includeBlockHelpers) {
   // If height is null or undefined, we default to 1, the first parent.
   if (height == null) {
     height = 1;
@@ -177,9 +179,12 @@ Blaze.TemplateInstance.prototype.parent = function(height) {
   var i = 0;
   var template = this;
   while (i < height && template) {
-    var view = template.view.parentView;
-    while (view && !view.template) {
-      view = view.parentView;
+    var view = parentView(template.view, includeBlockHelpers);
+    // We skip contentBlock views which are injected by Meteor when using
+    // block helpers (in addition to block helper view). This matches more
+    // the visual structure of templates and not the internal implementation.
+    while (view && (!view.template || view.name === '(contentBlock)')) {
+      view = parentView(view, includeBlockHelpers);
     }
     if (!view) {
       return null;
@@ -220,6 +225,15 @@ Blaze._parentData = function (height, _functionWrapped) {
 Template.parentData = Blaze._parentData;
 
 /* PRIVATE */
+
+function parentView(view, includeBlockHelpers) {
+  if (includeBlockHelpers) {
+    return view.originalParentView || view.parentView;
+  }
+  else {
+    return view.parentView;
+  }
+}
 
 function parseName(name) {
   // post 0.9.1 kludge to get template name from viewName
