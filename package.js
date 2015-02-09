@@ -1,7 +1,7 @@
 Package.describe({
   name: "aldeed:template-extension",
   summary: "Adds template features currently missing from the templating package",
-  version: "3.2.0",
+  version: "3.3.0",
   git: "https://github.com/aldeed/meteor-template-extension.git"
 });
 
