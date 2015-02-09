@@ -135,9 +135,15 @@ Template.foo.events({
 
 Template.foo2.inheritsHelpersFrom("foo");
 Template.foo2.inheritsEventsFrom("foo");
+
+Template.foo.created = function () {
+  console.log('foo');
+};
+
+Template.foo2.inheritsHooksFrom("foo");
 ```
 
-In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo".
+In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo". Additionally, the "foo2" template will inherit the `foo.created` callback and log 'foo' to the console upon creation.
 
 ## copyAs(newTemplateName)
 
