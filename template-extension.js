@@ -141,12 +141,23 @@ Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this;
 
-  var newTemplate =
-  Template[newTemplateName] = new Template('Template.' + newTemplateName, self.renderFunction);
+  var createNewTemplate = function (templateName) {
+    var newTemplate =
+    Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
 
-  var name = parseName(self.viewName);
-  newTemplate.inheritsHelpersFrom(name);
-  newTemplate.inheritsEventsFrom(name);
+    var name = parseName(self.viewName);
+    newTemplate.inheritsHelpersFrom(name);
+    newTemplate.inheritsEventsFrom(name);  
+  };
+
+  //Check if newTemplateName is an array
+  if (_.isArray(newTemplateName)) {
+    _.each(newTemplateName, function (name) {
+      createNewTemplate(name);
+    });
+  } else { //newTemplateName is a string
+    createNewTemplate(newTemplateName);
+  }
 };
 
 // Allow easy access to a template instance field when you do not know exactly

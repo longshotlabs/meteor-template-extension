@@ -165,8 +165,7 @@ Template.abstract_foo.helpers({
     }
 });
 
-Template.abstract_foo.copyAs('foo');
-Template.abstract_foo.copyAs('bar');
+Template.abstract_foo.copyAs(['foo', 'bar']);
 
 Template.foo.helpers({
     images: function () {
@@ -181,7 +180,7 @@ Template.bar.helpers({
 });
 ```
 
-In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods.
+In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods. Template.template.copyAs can accept either single template name (in string form), or an array of template names as shown in the above example.
 
 ## template.parent(numLevels, includeBlockHelpers)
 
