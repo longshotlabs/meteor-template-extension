@@ -151,10 +151,10 @@ Template.prototype.copyAs = function (newTemplateName) {
   };
 
   //Check if newTemplateName is an array
-  if (Array.isArray(newTemplateName)) {
-    for (var i = 0; i < newTemplateName.length; i++) {
-      createNewTemplate(newTemplateName[i]);   
-    }
+  if (_.isArray(newTemplateName)) {
+    _.each(newTemplateName, function (name) {
+      createNewTemplate(name);
+    });
   } else { //newTemplateName is a string
     createNewTemplate(newTemplateName);
   }
