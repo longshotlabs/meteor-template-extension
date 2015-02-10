@@ -203,40 +203,6 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
   }
 };
 
-Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
-  var self = this;
-  var name = parseName(self.viewName);
-
-  var inheritHooks = function(templateName) {
-    // Check for existence of templateName template
-    var otherTemplate = Template[templateName];
-    if (!otherTemplate) {
-      console.warn("Can't inherit hooks from template " + templateName + " because it hasn't been defined yet.");
-      return;
-    }
-    // For each hookType check if there are existing templateHooks for templateName
-    _.each(hookTypes, function (type) {
-      var hooks = templateHooks[type][templateName];
-      // For each existing hook for templateName
-      _.each(hooks, function (hook) {
-        // Initialize the target template's templateHooks array
-        templateHooks[type][name] = templateHooks[type][name] || [];
-        // Add hook
-        templateHooks[type][name].push(hook);
-      });
-    });
-  };
-  
-  //Allow this function to be called with an array or string
-  if (_.isArray(otherTemplateName)) {
-    _.each(otherTemplateName, function (name) {
-      inheritHooks(name);
-    });
-  } else {
-    inheritHooks(otherTemplateName);
-  }
-};
-
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this;
   
