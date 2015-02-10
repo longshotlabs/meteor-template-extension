@@ -28,10 +28,6 @@ Meteor.startup(function () {
         runGlobalHooks(type, this, arguments);
         // call all defined hooks for this template instance
         runTemplateHooks(type, this, arguments);
-        // call the existing callback if there was one
-        if (typeof orig === "function") {
-          orig.apply(this, arguments);
-        }
       };
     }
 
