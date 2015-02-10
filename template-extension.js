@@ -179,7 +179,7 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
 
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this;
-
+  
   var createNewTemplate = function (templateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
@@ -209,6 +209,7 @@ Template.prototype.copyAs = function (newTemplateName) {
 // that the field exists somewhere.
 Blaze.TemplateInstance.prototype.get = function (fieldName) {
   var template = this;
+
   while (template) {
     if (fieldName in template) {
       return template[fieldName];
@@ -306,7 +307,7 @@ function runGlobalHooks(type, template, args) {
 }
 
 function runTemplateHooks(type, template, args) {
-  var i, name = parseName(template.viewName), h = templateHooks[type][name];
+  var i, name = parseName(template.viewName) || parseName(template.view.name), h = templateHooks[type][name];
   var hl = h ? h.length : 0;
   for (i = 0; i < hl; i++) {
     h[i].apply(template, args);
