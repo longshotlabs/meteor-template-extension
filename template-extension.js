@@ -12,6 +12,15 @@ Meteor.startup(function () {
     function defineHook(type) {
       // see if there's an existing callback set directly on the template instance
       var orig = template[type];
+
+      // Basically scraping callbacks set directly on instance and saving
+      // in templateHooks
+      if (typeof orig === 'function') {
+        var name = parseName(template.viewName);
+        templateHooks[type][name] = templateHooks[type][name] || [];
+        templateHooks[type][name].push(orig);
+      }
+
       // set our own callback directly on the template instance
       template[type] = function () {
         //console.log(type, orig);
@@ -140,26 +149,36 @@ Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
 
 Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
   var self = this;
-
-  var otherTemplate = Template[otherTemplateName];
-  if (!otherTemplate) {
-    console.warn("Can't inherit hooks from template " + otherTemplateName + " because it hasn't been defined yet.");
-    return;
-  }
-
   var name = parseName(self.viewName);
-  
-  // For each hookType check if there are existing templateHooks for otherTemplate
-  _.each(hookTypes, function (type) {
-    var hooks = templateHooks[otherTemplateName][type];
-    // For each existing hook for otherTemplate
-    _.each(hooks, function (hook) {
-      // Initialize the target template's templateHooks array
-      templateHooks[name][type] = templateHooks[name][type] || [];
-      // Add hook
-      templateHooks[name][type].push(hook);
+
+  var inheritHooks = function(templateName) {
+    // Check for existence of templateName template
+    var otherTemplate = Template[templateName];
+    if (!otherTemplate) {
+      console.warn("Can't inherit hooks from template " + templateName + " because it hasn't been defined yet.");
+      return;
+    }
+    // For each hookType check if there are existing templateHooks for templateName
+    _.each(hookTypes, function (type) {
+      var hooks = templateHooks[type][templateName];
+      // For each existing hook for templateName
+      _.each(hooks, function (hook) {
+        // Initialize the target template's templateHooks array
+        templateHooks[type][name] = templateHooks[type][name] || [];
+        // Add hook
+        templateHooks[type][name].push(hook);
+      });
     });
-  });
+  };
+  
+  //Allow this function to be called with an array or string
+  if (_.isArray(otherTemplateName)) {
+    _.each(otherTemplateName, function (name) {
+      inheritHooks(name);
+    });
+  } else {
+    inheritHooks(otherTemplateName);
+  }
 };
 
 Template.prototype.copyAs = function (newTemplateName) {
@@ -272,6 +291,9 @@ function parentView(view, includeBlockHelpers) {
 }
 
 function parseName(name) {
+  if (!name) {
+    return
+  }
   // post 0.9.1 kludge to get template name from viewName
   var prefix = 'Template.';
   if (name.indexOf(prefix) === 0) {
@@ -288,7 +310,7 @@ function runGlobalHooks(type, template, args) {
 }
 
 function runTemplateHooks(type, template, args) {
-  var i, name = parseName(template.view.name), h = templateHooks[type][name];
+  var i, name = parseName(template.viewName), h = templateHooks[type][name];
   var hl = h ? h.length : 0;
   for (i = 0; i < hl; i++) {
     h[i].apply(template, args);
