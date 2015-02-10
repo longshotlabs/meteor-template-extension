@@ -205,7 +205,8 @@ Template.prototype.copyAs = function (newTemplateName) {
 
     var name = parseName(self.viewName);
     newTemplate.inheritsHelpersFrom(name);
-    newTemplate.inheritsEventsFrom(name);  
+    newTemplate.inheritsEventsFrom(name);
+    newTemplate.inheritsHooksFrom(name); 
   };
 
   //Check if newTemplateName is an array
