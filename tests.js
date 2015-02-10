@@ -168,3 +168,15 @@ Tinytest.add('template-extension - inheritsHooksFrom array', function (test) {
   test.equal(Template.testTemplate9._testTemplateField, 42);
   test.equal(Template.testTemplate9._testTemplateField4, 14);
 });
+
+Tinytest.add('template-extension - copyAs returns newly created template', function (test) {
+  var result = Template.testTemplate.copyAs('testTemplate3');
+  test.instanceOf(result, Blaze.Template);
+});
+
+Tinytest.add('template-extension - copyAs returns newly created template array', function (test) {
+  var result = Template.testTemplate.copyAs(['testTemplate3', 'testTemplate4']);
+  test.instanceOf(result, Array);
+  test.instanceOf(result[0], Blaze.Template);
+  test.instanceOf(result[1], Blaze.Template);
+});

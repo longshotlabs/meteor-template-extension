@@ -190,6 +190,10 @@ Template.bar.helpers({
 
 In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods. Template.template.copyAs can accept either single template name (in string form), or an array of template names as shown in the above example.
 
+If copyAs is invoked with a string, it returns the newly created template.
+
+If copyAs is invoked with an array, it returns an array of newly created templates.
+
 ## template.parent(numLevels, includeBlockHelpers)
 
 On template instances you can now use `parent(numLevels)` method to access a parent template instance.
