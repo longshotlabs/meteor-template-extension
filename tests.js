@@ -162,9 +162,9 @@ Tinytest.add('template-extension - inheritsHooksFrom', function (test) {
 });
 
 Tinytest.add('template-extension - inheritsHooksFrom array', function (test) {
-  Template.testTemplate7.inheritsHooksFrom(['testTemplate', 'testTemplate8']);
-  Template.testTemplate7.created();
-  Template.testTemplate7.rendered();
-  test.equal(Template.testTemplate7._testTemplateField, 42);
-  test.equal(Template.testTemplate7._testTemplateField4, 14);
+  Template.testTemplate9.inheritsHooksFrom(['testTemplate', 'testTemplate8']);
+  Template.testTemplate9.created();
+  Template.testTemplate9.rendered();
+  test.equal(Template.testTemplate9._testTemplateField, 42);
+  test.equal(Template.testTemplate9._testTemplateField4, 14);
 });

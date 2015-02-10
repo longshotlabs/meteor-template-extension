@@ -182,13 +182,13 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
     }
     // For each hookType check if there are existing templateHooks for templateName
     _.each(hookTypes, function (type) {
-      var hooks = templateHooks[templateName][type];
+      var hooks = templateHooks[type][templateName];
       // For each existing hook for templateName
       _.each(hooks, function (hook) {
         // Initialize the target template's templateHooks array
-        templateHooks[name][type] = templateHooks[name][type] || [];
+        templateHooks[type][name] = templateHooks[type][name] || [];
         // Add hook
-        templateHooks[name][type].push(hook);
+        templateHooks[type][name].push(hook);
       });
     });
   };
