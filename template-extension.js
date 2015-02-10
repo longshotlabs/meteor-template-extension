@@ -107,40 +107,100 @@ Template.prototype.replaces = function (replacedTemplateName) {
 
 Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
   var self = this;
-
-  var otherTemplate = Template[otherTemplateName];
-  if (!otherTemplate) {
-    console.warn("Can't inherit helpers from template " + otherTemplateName + " because it hasn't been defined yet.");
-    return;
-  }
-
   var name = parseName(self.viewName);
   var thisTemplate = Template[name];
-  if (otherTemplate.__helpers) {
-    thisTemplate.__helpers = $.extend({}, thisTemplate.__helpers, otherTemplate.__helpers);
-  }
 
-  else {
-    // backwards compatibility; pre-0.9.4 Meteor
-    for (var h in otherTemplate) {
-      if (otherTemplate.hasOwnProperty(h) && (h.slice(0, 2) !== "__") && h !== "viewName" && h !== "renderFunction") {
-        thisTemplate[h] = otherTemplate[h];
+  var inheritHelpers = function (templateName) {
+    var otherTemplate = Template[templateName];
+    if (!otherTemplate) {
+      console.warn("Can't inherit helpers from template " + templateName + " because it hasn't been defined yet.");
+      return;
+    }
+
+    if (otherTemplate.__helpers) {
+      thisTemplate.__helpers = $.extend({}, thisTemplate.__helpers, otherTemplate.__helpers);
+    }
+
+    else {
+      // backwards compatibility; pre-0.9.4 Meteor
+      for (var h in otherTemplate) {
+        if (otherTemplate.hasOwnProperty(h) && (h.slice(0, 2) !== "__") && h !== "viewName" && h !== "renderFunction") {
+          thisTemplate[h] = otherTemplate[h];
+        }
       }
     }
+  };
+
+  //Accept an array as otherTemplateName argument
+  if (_.isArray(otherTemplateName)) {
+    _.each(otherTemplateName, function (name) {
+      inheritHelpers(name);
+    });
+  } else { //otherTemplateName is a string
+    inheritHelpers(otherTemplateName);
   }
 };
 
 Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
   var self = this;
 
-  var otherTemplate = Template[otherTemplateName];
-  if (!otherTemplate) {
-    console.warn("Can't inherit events from template " + otherTemplateName + " because it hasn't been defined yet.");
-    return;
-  }
-
   var name = parseName(self.viewName);
-  Template[name].__eventMaps = otherTemplate.__eventMaps;
+
+  var inheritEvents = function (templateName) {
+    // Check for existence of templateName template
+    var otherTemplate = Template[templateName];
+    if (!otherTemplate) {
+      console.warn("Can't inherit events from template " + templateName + " because it hasn't been defined yet.");
+      return;
+    }
+    // Inherit events
+    _.each(otherTemplate.__eventMaps, function (event) {
+      Template[name].__eventMaps.push(event);  
+    });
+  };
+
+  //Accept an array as otherTemplateName argument
+  if (_.isArray(otherTemplateName)) {
+    _.each(otherTemplateName, function (name) {
+      inheritEvents(name);
+    });
+  } else { //otherTemplateName is a string
+    inheritEvents(otherTemplateName);
+  }
+};
+
+Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
+  var self = this;
+  var name = parseName(self.viewName);
+
+  var inheritHooks = function(templateName) {
+    // Check for existence of templateName template
+    var otherTemplate = Template[templateName];
+    if (!otherTemplate) {
+      console.warn("Can't inherit hooks from template " + templateName + " because it hasn't been defined yet.");
+      return;
+    }
+    // For each hookType check if there are existing templateHooks for templateName
+    _.each(hookTypes, function (type) {
+      var hooks = templateHooks[templateName][type];
+      // For each existing hook for templateName
+      _.each(hooks, function (hook) {
+        // Initialize the target template's templateHooks array
+        templateHooks[name][type] = templateHooks[name][type] || [];
+        // Add hook
+        templateHooks[name][type].push(hook);
+      });
+    });
+  };
+
+  //Accept an array as otherTemplateName argument
+  if (_.isArray(otherTemplateName)) {
+    _.each(otherTemplateName, function (name) {
+      inheritHooks(name);
+    });
+  } else { //otherTemplateName is a string
+    inheritHooks(otherTemplateName);
+  }
 };
 
 Template.prototype.inheritsHooksFrom = function (otherTemplateName) {

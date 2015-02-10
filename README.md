@@ -99,7 +99,7 @@ Whenever `{{> foo}}` is used, the contents of the `foo2` template will be shown 
 
 This is useful when a package you are using defines a template for something and you'd like to adjust some things in that template for your app.
 
-## inheritsHelpersFrom(templateName) and inheritsEventsFrom(templateName)
+## inheritsHelpersFrom(templateName), inheritsEventsFrom(templateName), and inheritsHooksFrom(templateName)
 
 *html*
 
@@ -143,7 +143,9 @@ Template.foo.created = function () {
 Template.foo2.inheritsHooksFrom("foo");
 ```
 
-In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo". Additionally, the "foo2" template will inherit the `foo.created` callback and log 'foo' to the console upon creation.
+In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo". The "foo2" template will inherit the `foo.created` callback and log 'foo' to the console upon creation.
+
+Additionally, these methods can be called with an array of template names: `Template.foo2.inheritsHooksFrom(['foo', 'bar', 'baz']);`
 
 ## copyAs(newTemplateName)
 
