@@ -204,7 +204,7 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
 };
 
 Template.prototype.copyAs = function (newTemplateName) {
-  var self = this;
+  var self = this, result = [];
   
   var createNewTemplate = function (templateName) {
     var newTemplate =
@@ -214,15 +214,22 @@ Template.prototype.copyAs = function (newTemplateName) {
     newTemplate.inheritsHelpersFrom(name);
     newTemplate.inheritsEventsFrom(name);
     newTemplate.inheritsHooksFrom(name);
+
+    return newTemplate;
   };
 
   //Check if newTemplateName is an array
   if (_.isArray(newTemplateName)) {
     _.each(newTemplateName, function (name) {
-      createNewTemplate(name);
+      var template = createNewTemplate(name);
+      //Push newly created template into array that we'll return
+      result.push(template);
     });
+    return result;
   } else { //newTemplateName is a string
-    createNewTemplate(newTemplateName);
+    var template = createNewTemplate(newTemplateName);
+    //return newly created array
+    return template;
   }
 };
 
