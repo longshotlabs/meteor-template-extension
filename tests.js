@@ -54,6 +54,24 @@ Template.testTemplate2.helpers({
   }
 });
 
+Template.testTemplate3.events({
+  'click #button': function () {
+    return true;
+  }
+});
+
+Template.testTemplate4.events({
+  'mousemove .current': function () {
+    return true;
+  }
+});
+
+Template.testTemplate8.hooks({
+  rendered: function () {
+    this._testTemplateField4 = 14;
+  }
+});
+
 Tinytest.add('template-extension - get', function (test) {
   testingInstanceGet = true;
   try {
@@ -113,4 +131,52 @@ Tinytest.add('template-extension - parentData', function (test) {
   finally {
     testingData = false;
   }
+});
+
+Tinytest.add('template-extension - inheritsHelpersFrom', function (test) {
+  Template.testTemplate3.inheritsHelpersFrom('testTemplate2');
+  test.equal(Template.testTemplate2.__helpers[' testInstanceGet'], Template.testTemplate3.__helpers[' testInstanceGet']);
+});
+
+Tinytest.add('template-extension - inheritsHelpersFrom array', function (test) {
+  Template.testTemplate4.inheritsHelpersFrom(['testTemplate1', 'testTemplate2']);
+  test.equal(Template.testTemplate2.__helpers[' testInstanceGet'], Template.testTemplate4.__helpers[' testInstanceGet']);
+  test.equal(Template.testTemplate1.__helpers[' data'], Template.testTemplate4.__helpers[' data']);
+});
+
+Tinytest.add('template-extension - inheritsEventsFrom', function (test) {
+  Template.testTemplate5.inheritsEventsFrom('testTemplate3');
+  test.equal(Template.testTemplate3.__eventMaps, Template.testTemplate5.__eventMaps);
+});
+
+Tinytest.add('template-extension - inheritsEventsFrom array', function (test) {
+  Template.testTemplate6.inheritsEventsFrom(['testTemplate3', 'testTemplate4']);
+  test.equal(Template.testTemplate3.__eventMaps[0], Template.testTemplate6.__eventMaps[0]);
+  test.equal(Template.testTemplate4.__eventMaps[0], Template.testTemplate6.__eventMaps[1]);
+});
+
+Tinytest.add('template-extension - inheritsHooksFrom', function (test) {
+  Template.testTemplate7.inheritsHooksFrom('testTemplate');
+  Template.testTemplate7.created();
+  test.equal(Template.testTemplate7._testTemplateField, 42);
+});
+
+Tinytest.add('template-extension - inheritsHooksFrom array', function (test) {
+  Template.testTemplate9.inheritsHooksFrom(['testTemplate', 'testTemplate8']);
+  Template.testTemplate9.created();
+  Template.testTemplate9.rendered();
+  test.equal(Template.testTemplate9._testTemplateField, 42);
+  test.equal(Template.testTemplate9._testTemplateField4, 14);
+});
+
+Tinytest.add('template-extension - copyAs returns newly created template', function (test) {
+  var result = Template.testTemplate.copyAs('testTemplate3');
+  test.instanceOf(result, Blaze.Template);
+});
+
+Tinytest.add('template-extension - copyAs returns newly created template array', function (test) {
+  var result = Template.testTemplate.copyAs(['testTemplate3', 'testTemplate4']);
+  test.instanceOf(result, Array);
+  test.instanceOf(result[0], Blaze.Template);
+  test.instanceOf(result[1], Blaze.Template);
 });
