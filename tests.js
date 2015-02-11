@@ -72,6 +72,42 @@ Template.testTemplate8.hooks({
   }
 });
 
+Template.testTemplate9.hooks({
+  created: function () {
+    this._testTemplateField5 = 14;
+  }
+});
+
+Template.testTemplate9.helpers({
+  copyAsHelper: function () {
+    return 'copyAs';
+  }
+});
+
+Template.testTemplate17.hooks({
+  created: function () {
+    this._testTemplateField7 = 14;
+  },
+  rendered: function () {
+    this._testTemplateField7 = 15;
+  },
+  destroyed: function () {
+    this._testTemplateField7 = 16;
+  },
+});
+
+Template.onCreated(function () {
+  this.testTemplateField14 = 14;
+});
+
+Template.onRendered(function () {
+  this.testTemplateField15 = 15;
+});
+
+Template.onDestroyed(function () {
+  this.testTemplateField16 = 16;
+});
+
 Tinytest.add('template-extension - get', function (test) {
   testingInstanceGet = true;
   try {
@@ -169,6 +205,23 @@ Tinytest.add('template-extension - inheritsHooksFrom array', function (test) {
   test.equal(Template.testTemplate9._testTemplateField4, 14);
 });
 
+Tinytest.add('template-extension - copyAs', function (test) {
+  Template.testTemplate9.copyAs('testTemplate10');
+  Template.testTemplate10.created();
+  test.equal(Blaze.toHTML(Template.testTemplate10),'<h1>copyAs</h1>');
+  test.equal(Template.testTemplate10._testTemplateField5, 14);
+});
+
+Tinytest.add('template-extension - copyAs array', function (test) {
+  Template.testTemplate9.copyAs(['testTemplate11', 'testTemplate12']);
+  Template.testTemplate11.created();
+  Template.testTemplate12.created();
+  test.equal(Blaze.toHTML(Template.testTemplate11),'<h1>copyAs</h1>');
+  test.equal(Blaze.toHTML(Template.testTemplate12),'<h1>copyAs</h1>');
+  test.equal(Template.testTemplate11._testTemplateField5, 14);
+  test.equal(Template.testTemplate12._testTemplateField5, 14);
+});
+
 Tinytest.add('template-extension - copyAs returns newly created template', function (test) {
   var result = Template.testTemplate.copyAs('testTemplate3');
   test.instanceOf(result, Blaze.Template);
@@ -179,4 +232,42 @@ Tinytest.add('template-extension - copyAs returns newly created template array',
   test.instanceOf(result, Array);
   test.instanceOf(result[0], Blaze.Template);
   test.instanceOf(result[1], Blaze.Template);
+});
+
+Tinytest.add('template-extension - replaces', function (test) {
+  Template.testTemplate9.replaces('testTemplate14');
+  Template.testTemplate14.inheritsHelpersFrom('testTemplate9');
+  test.equal(Blaze.toHTML(Template.testTemplate14),'<h1>copyAs</h1>');
+});
+
+Tinytest.add('template-extension - replaces array', function (test) {
+  Template.testTemplate9.replaces(['testTemplate15', 'testTemplate16']);
+  Template.testTemplate15.inheritsHelpersFrom('testTemplate9');
+  Template.testTemplate16.inheritsHelpersFrom('testTemplate9');
+  test.equal(Blaze.toHTML(Template.testTemplate15),'<h1>copyAs</h1>');
+  test.equal(Blaze.toHTML(Template.testTemplate16),'<h1>copyAs</h1>');
+});
+
+Tinytest.add('template-extension - hooks', function (test) {
+  Template.testTemplate17.created();
+  test.equal(Template.testTemplate17._testTemplateField7, 14);
+  Template.testTemplate17.rendered();
+  test.equal(Template.testTemplate17._testTemplateField7, 15);
+  Template.testTemplate17.destroyed();
+  test.equal(Template.testTemplate17._testTemplateField7, 16);
+});
+
+Tinytest.add('template-extension - onCreated', function (test) {
+  Template.testTemplate20.created();
+  test.equal(Template.testTemplate20.testTemplateField14, 14);
+});
+
+Tinytest.add('template-extension - onRendered', function (test) {
+  Template.testTemplate20.rendered();
+  test.equal(Template.testTemplate20.testTemplateField15, 15);
+});
+
+Tinytest.add('template-extension - onDestroyed', function (test) {
+  Template.testTemplate20.destroyed();
+  test.equal(Template.testTemplate20.testTemplateField16, 16);
 });
