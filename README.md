@@ -226,3 +226,4 @@ var data = Template.parentData(function (data) {return data instanceof MyDocumen
 * @aldeed ([Support via Gratipay](https://gratipay.com/aldeed/))
 * @grabbou
 * @mitar
+* @jgladch
