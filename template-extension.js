@@ -7,33 +7,10 @@ var templateHooks = {created: {}, rendered: {}, destroyed: {}};
 // a hook once the client has started.
 Meteor.startup(function () {
   Template.forEach(function (template) {
-    var i;
-
-    function defineHook(type) {
-      // see if there's an existing callback set directly on the template instance
-      var orig = template[type];
-
-      // Basically scraping callbacks set directly on instance and saving
-      // in templateHooks
-      if (typeof orig === 'function') {
-        var name = parseName(template.viewName);
-        templateHooks[type][name] = templateHooks[type][name] || [];
-        templateHooks[type][name].push(orig);
-      }
-
-      // set our own callback directly on the template instance
-      template[type] = function () {
-        //console.log(type, orig);
-        // call all defined global hooks
-        runGlobalHooks(type, this, arguments);
-        // call all defined hooks for this template instance
-        runTemplateHooks(type, this, arguments);
-      };
-    }
-
-    for (i = hookTypes.length - 1; i >= 0; i--) {
-      defineHook(hookTypes[i]);
-    }
+    //For each hookType, define the hooks for this template
+    _.each(hookTypes, function (type) {
+      defineHook(template, type);
+    });
   });
 });
 
@@ -93,16 +70,28 @@ Template.prototype.hooks = function (hooks) {
 
 Template.prototype.replaces = function (replacedTemplateName) {
   var self = this;
-
-  var replacedTemplate = Template[replacedTemplateName];
-
-  if (!replacedTemplate) {
-    console.warn("Can't replace template " + replacedTemplateName + " because it hasn't been defined yet.");
-    return;
-  }
-
   var name = parseName(self.viewName);
-  replacedTemplate.renderFunction = Template[name].renderFunction;
+
+  var replaceRender = function (templateName) {
+    var replacedTemplate = Template[templateName];
+
+    if (!replacedTemplate) {
+      console.warn("Can't replace template " + templateName + " because it hasn't been defined yet.");
+      return;
+    }
+
+    replacedTemplate.renderFunction = Template[name].renderFunction;
+  };
+
+  // Allow this method to be called with an array or a string
+  if (_.isArray(replacedTemplateName)) {
+    // If called with array, iterate over the template names
+    _.each(replacedTemplateName, function (templateName) {
+      replaceRender(templateName);
+    });
+  } else {
+    replaceRender(replacedTemplateName);
+  }
 };
 
 Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
@@ -210,6 +199,12 @@ Template.prototype.copyAs = function (newTemplateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
 
+    // Run this new template through defineHook, to manage hooks like
+    // all other new templates
+    _.each(hookTypes, function (type) {
+      defineHook(newTemplate, type);
+    });
+
     var name = parseName(self.viewName);
     newTemplate.inheritsHelpersFrom(name);
     newTemplate.inheritsEventsFrom(name);
@@ -310,6 +305,28 @@ Blaze._parentData = function (height, _functionWrapped) {
 Template.parentData = Blaze._parentData;
 
 /* PRIVATE */
+
+function defineHook(template, type) {
+  // see if there's an existing callback set directly on the template instance
+  var orig = template[type];
+
+  // Basically scraping callbacks set directly on instance and saving
+  // in templateHooks
+  if (typeof orig === 'function') {
+    var name = parseName(template.viewName);
+    templateHooks[type][name] = templateHooks[type][name] || [];
+    templateHooks[type][name].push(orig);
+  }
+
+  // set our own callback directly on the template instance
+  template[type] = function () {
+    //console.log(type, orig);
+    // call all defined global hooks
+    runGlobalHooks(type, this, arguments);
+    // call all defined hooks for this template instance
+    runTemplateHooks(type, this, arguments);
+  };
+};
 
 function parentView(view, includeBlockHelpers) {
   if (includeBlockHelpers) {
