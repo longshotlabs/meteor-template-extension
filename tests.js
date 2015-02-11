@@ -78,6 +78,12 @@ Template.testTemplate9.hooks({
   }
 });
 
+Template.testTemplate9.helpers({
+  copyAsHelper: function () {
+    return 'copyAs';
+  }
+});
+
 Template.testTemplate17.hooks({
   created: function () {
     this._testTemplateField7 = 14;
@@ -230,11 +236,14 @@ Tinytest.add('template-extension - copyAs returns newly created template array',
 
 Tinytest.add('template-extension - replaces', function (test) {
   Template.testTemplate9.replaces('testTemplate14');
+  Template.testTemplate14.inheritsHelpersFrom('testTemplate9');
   test.equal(Blaze.toHTML(Template.testTemplate14),'<h1>copyAs</h1>');
 });
 
 Tinytest.add('template-extension - replaces array', function (test) {
   Template.testTemplate9.replaces(['testTemplate15', 'testTemplate16']);
+  Template.testTemplate15.inheritsHelpersFrom('testTemplate9');
+  Template.testTemplate16.inheritsHelpersFrom('testTemplate9');
   test.equal(Blaze.toHTML(Template.testTemplate15),'<h1>copyAs</h1>');
   test.equal(Blaze.toHTML(Template.testTemplate16),'<h1>copyAs</h1>');
 });
