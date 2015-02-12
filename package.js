@@ -11,6 +11,7 @@ Package.onUse(function(api) {
     'templating',
     'blaze',
     'jquery',
+    'underscore',
     'tracker'
   ], 'client');
 
