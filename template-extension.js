@@ -1,3 +1,5 @@
+/* global Meteor, Template, _, Blaze, $, Tracker */
+
 var hookTypes = ["created", "rendered", "destroyed"];
 var globalHooks = {created: [], rendered: [], destroyed: []};
 var templateHooks = {created: {}, rendered: {}, destroyed: {}};
@@ -7,10 +9,17 @@ var templateHooks = {created: {}, rendered: {}, destroyed: {}};
 // a hook once the client has started.
 Meteor.startup(function () {
   Template.forEach(function (template) {
-    //For each hookType, define the hooks for this template
-    _.each(hookTypes, function (type) {
-      defineHook(template, type);
-    });
+    // For each hookType, define the hooks for this template.
+    // If this template was created by a call to copyAs in
+    // top-level client code, we will have run defineHook
+    // for this template already, so we don't want to do it again.
+    // Doing it twice would create an infinite loop of self-calling
+    // hooks.
+    if (!template._hasTemplateExtensionMasterHook) {
+      _.each(hookTypes, function (type) {
+        defineHook(template, type);
+      });
+    }
   });
 });
 
@@ -319,14 +328,15 @@ function defineHook(template, type) {
   }
 
   // set our own callback directly on the template instance
-  template[type] = function () {
-    //console.log(type, orig);
+  template[type] = function templateExtensionMasterHook() {
     // call all defined global hooks
     runGlobalHooks(type, this, arguments);
     // call all defined hooks for this template instance
     runTemplateHooks(type, this, arguments);
   };
-};
+
+  template._hasTemplateExtensionMasterHook = true;
+}
 
 function parentView(view, includeBlockHelpers) {
   if (includeBlockHelpers) {
@@ -339,7 +349,7 @@ function parentView(view, includeBlockHelpers) {
 
 function parseName(name) {
   if (!name) {
-    return
+    return;
   }
   // post 0.9.1 kludge to get template name from viewName
   var prefix = 'Template.';
