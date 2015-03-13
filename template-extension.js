@@ -9,17 +9,7 @@ var templateHooks = {created: {}, rendered: {}, destroyed: {}};
 // a hook once the client has started.
 Meteor.startup(function () {
   Template.forEach(function (template) {
-    // For each hookType, define the hooks for this template.
-    // If this template was created by a call to copyAs in
-    // top-level client code, we will have run defineHook
-    // for this template already, so we don't want to do it again.
-    // Doing it twice would create an infinite loop of self-calling
-    // hooks.
-    if (!template._hasTemplateExtensionMasterHook) {
-      _.each(hookTypes, function (type) {
-        defineHook(template, type);
-      });
-    }
+    defineAllHooks(template);
   });
 });
 
@@ -178,6 +168,11 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
       console.warn("Can't inherit hooks from template " + templateName + " because it hasn't been defined yet.");
       return;
     }
+    // For this to work properly, need to ensure that we've run
+    // defineAllHooks for both templates already
+    defineAllHooks(otherTemplate);
+    defineAllHooks(self);
+
     // For each hookType check if there are existing templateHooks for templateName
     _.each(hookTypes, function (type) {
       var hooks = templateHooks[type][templateName];
@@ -207,12 +202,6 @@ Template.prototype.copyAs = function (newTemplateName) {
   var createNewTemplate = function (templateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
-
-    // Run this new template through defineHook, to manage hooks like
-    // all other new templates
-    _.each(hookTypes, function (type) {
-      defineHook(newTemplate, type);
-    });
 
     var name = parseName(self.viewName);
     newTemplate.inheritsHelpersFrom(name);
@@ -336,6 +325,19 @@ function defineHook(template, type) {
   };
 
   template._hasTemplateExtensionMasterHook = true;
+}
+
+function defineAllHooks(template) {
+  // For each hookType, define the hooks for this template.
+  // Since we might call this multiple times from startup code
+  // and other functions, make sure we do it only once.
+  // Doing it twice would create an infinite loop of self-calling
+  // hooks.
+  if (!template._hasTemplateExtensionMasterHook) {
+    _.each(hookTypes, function (type) {
+      defineHook(template, type);
+    });
+  }
 }
 
 function parentView(view, includeBlockHelpers) {
