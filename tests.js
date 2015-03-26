@@ -43,7 +43,12 @@ Template.testTemplate2.helpers({
     var template = Template.instance();
     while (template) {
       // Only fields which start with _.
-      ancestors.push(_.pick(template, _.filter(_.keys(template), function (key) {return key.substr(0, 1) === '_';})));
+      ancestors.push(_.pick(template, _.filter(_.keys(template), function (key) {
+        return key.substr(0, 1) === '_' &&
+          key !== '_allSubsReadyDep' &&
+          key !== '_allSubsReady' &&
+          key !== '_subscriptionHandles';
+      })));
       template = template.parent(this.numLevels, this.includeBlockHelpers);
     }
     return EJSON.stringify(ancestors);
