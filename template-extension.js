@@ -261,7 +261,7 @@ Blaze.TemplateInstance.prototype.parent = function(height, includeBlockHelpers) 
     // We skip contentBlock views which are injected by Meteor when using
     // block helpers (in addition to block helper view). This matches more
     // the visual structure of templates and not the internal implementation.
-    while (view && (!view.template || view.name === '(contentBlock)')) {
+    while (view && (!view.template || view.name === '(contentBlock)' || view.name === '(elseBlock)')) {
       view = parentView(view, includeBlockHelpers);
     }
     if (!view) {
