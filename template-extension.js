@@ -156,7 +156,7 @@ Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
     }
     // Inherit events
     _.each(otherTemplate.__eventMaps, function (event) {
-      Template[name].__eventMaps.push(event);  
+      Template[name].__eventMaps.push(event);
     });
   };
 
@@ -211,7 +211,7 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
 
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this, result = [];
-  
+
   var createNewTemplate = function (templateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
