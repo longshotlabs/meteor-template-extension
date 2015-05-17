@@ -46,6 +46,19 @@ Template.onDestroyed = function (callback) {
   globalHooks.destroyed.push(callback);
 };
 
+Template.registerHelpers = function(helpers) {
+  var func, name;
+  var hasProp = {}.hasOwnProperty;
+
+  for (name in helpers) {
+    if (!hasProp.call(helpers, name))
+      continue;
+
+    func = helpers[name];
+    Template.registerHelper(name, func);
+  }
+}
+
 Template.prototype.hooks = function (hooks) {
   var self = this;
 
