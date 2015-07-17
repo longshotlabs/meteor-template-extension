@@ -143,7 +143,7 @@ Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
     }
     // Inherit events
     _.each(otherTemplate.__eventMaps, function (event) {
-      Template[name].__eventMaps.push(event);  
+      Template[name].__eventMaps.push(event);
     });
   };
 
@@ -198,7 +198,7 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
 
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this, result = [];
-  
+
   var createNewTemplate = function (templateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
@@ -235,14 +235,28 @@ Template.prototype.copyAs = function (newTemplateName) {
 // that the field exists somewhere.
 Blaze.TemplateInstance.prototype.get = function (fieldName) {
   var template = this;
-
+  var result;
   while (template) {
-    if (fieldName in template) {
-      return template[fieldName];
+    result = hasProperty(template,fieldName);
+    if (result) {
+      return result;
     }
     template = template.parent(1, true);
   }
 };
+
+
+function hasProperty(obj, prop) {
+  var parts = prop.split(".");
+  var cur = obj;
+  for (var i=0; i<parts.length; i++) {
+    if (!cur[parts[i]])
+      return false;
+    cur = cur[parts[i]];
+  }
+  return cur;
+}
+
 
 // Access parent template instance. "height" is the number of levels beyond the
 // current template instance to look. By default block helper template instances
