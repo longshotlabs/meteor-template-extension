@@ -276,3 +276,17 @@ Tinytest.add('template-extension - onDestroyed', function (test) {
   Template.testTemplate20.destroyed();
   test.equal(Template.testTemplate20.testTemplateField16, 16);
 });
+
+Tinytest.add('template-extension - registerHelpers', function(test) {
+  Template.registerHelpers({
+    testHelper1: function() {
+      return 'test1';
+    },
+    testHelper2: function() {
+      return 'test2';
+    }
+  });
+
+  test.equal(Blaze._globalHelpers['testHelper1'](), 'test1');
+  test.equal(Blaze._globalHelpers['testHelper2'](), 'test2');
+});
