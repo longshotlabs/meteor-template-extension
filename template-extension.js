@@ -46,6 +46,18 @@ Template.onDestroyed = function (callback) {
   globalHooks.destroyed.push(callback);
 };
 
+Template.registerHelpers = function(helpers) {
+  var func, name;
+
+  for (name in helpers) {
+    if (!helpers.hasOwnProperty(name))
+      continue;
+
+    func = helpers[name];
+    Template.registerHelper(name, func);
+  }
+}
+
 Template.prototype.hooks = function (hooks) {
   var self = this;
 
@@ -143,7 +155,7 @@ Template.prototype.inheritsEventsFrom = function (otherTemplateName) {
     }
     // Inherit events
     _.each(otherTemplate.__eventMaps, function (event) {
-      Template[name].__eventMaps.push(event);  
+      Template[name].__eventMaps.push(event);
     });
   };
 
@@ -198,7 +210,7 @@ Template.prototype.inheritsHooksFrom = function (otherTemplateName) {
 
 Template.prototype.copyAs = function (newTemplateName) {
   var self = this, result = [];
-  
+
   var createNewTemplate = function (templateName) {
     var newTemplate =
     Template[templateName] = new Template('Template.' + templateName, self.renderFunction);
