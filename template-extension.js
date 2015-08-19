@@ -48,10 +48,9 @@ Template.onDestroyed = function (callback) {
 
 Template.registerHelpers = function(helpers) {
   var func, name;
-  var hasProp = {}.hasOwnProperty;
 
   for (name in helpers) {
-    if (!hasProp.call(helpers, name))
+    if (!helpers.hasOwnProperty(name))
       continue;
 
     func = helpers[name];
