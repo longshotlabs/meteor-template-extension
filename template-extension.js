@@ -118,7 +118,14 @@ Template.prototype.inheritsHelpersFrom = function (otherTemplateName) {
     }
 
     if (otherTemplate.__helpers) {
-      thisTemplate.__helpers = $.extend({}, thisTemplate.__helpers, otherTemplate.__helpers);
+      var inherited_helpers = {};
+
+      _.each(otherTemplate.__helpers, function (helper, name) {
+        if (name.charAt(0) === " ")
+          inherited_helpers[name.slice(1)] = helper;
+      });
+
+      thisTemplate.helpers(inherited_helpers);
     }
 
     else {
