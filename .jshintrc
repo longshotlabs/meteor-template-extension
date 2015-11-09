@@ -1,0 +1,18 @@
+{
+  "curly": false,
+  "esnext": true,
+  "globals": {
+    "Hooks": true
+  },
+  "predef": [
+    "Blaze",
+    "EJSON",
+    "Meteor",
+    "Package",
+    "Template",
+    "Tinytest",
+    "Tracker",
+    "_",
+    "$"
+  ]
+}

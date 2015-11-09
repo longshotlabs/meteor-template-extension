@@ -2,13 +2,13 @@ var testingInstanceGet = false;
 var testingInstanceParent = false;
 var testingData = false;
 
-Template.noop.created = function () {
+Template.noop.onCreated(function () {
   this._testTemplateFieldNoop = 50;
-};
+});
 
-Template.testTemplate.created = function () {
+Template.testTemplate.onCreated(function () {
   this._testTemplateField = 42;
-};
+});
 
 Template.testTemplate.helpers({
   data: function () {
@@ -16,9 +16,9 @@ Template.testTemplate.helpers({
   }
 });
 
-Template.testTemplate1.created = function () {
+Template.testTemplate1.onCreated(function () {
   this._testTemplateField1 = 43;
-};
+});
 
 Template.testTemplate1.helpers({
   data: function () {
@@ -27,9 +27,9 @@ Template.testTemplate1.helpers({
   }
 });
 
-Template.testTemplate2.created = function () {
+Template.testTemplate2.onCreated(function () {
   this._testTemplateField3 = 44;
-};
+});
 
 Template.testTemplate2.helpers({
   testInstanceGet: function () {
@@ -47,7 +47,10 @@ Template.testTemplate2.helpers({
         return key.substr(0, 1) === '_' &&
           key !== '_allSubsReadyDep' &&
           key !== '_allSubsReady' &&
-          key !== '_subscriptionHandles';
+          key !== '_subscriptionHandles' &&
+          key !== '_globalCreated' &&
+          key !== '_globalRendered' &&
+          key !== '_globalDestroyed';
       })));
       template = template.parent(this.numLevels, this.includeBlockHelpers);
     }
@@ -73,13 +76,13 @@ Template.testTemplate4.events({
 
 Template.testTemplate8.hooks({
   rendered: function () {
-    this._testTemplateField4 = 14;
+    this._rendered8 = true;
   }
 });
 
 Template.testTemplate9.hooks({
   created: function () {
-    this._testTemplateField5 = 14;
+    this._created9 = true;
   }
 });
 
@@ -91,26 +94,32 @@ Template.testTemplate9.helpers({
 
 Template.testTemplate17.hooks({
   created: function () {
-    this._testTemplateField7 = 14;
+    this._created17 = true;
   },
   rendered: function () {
-    this._testTemplateField7 = 15;
+    this._rendered17 = true;
   },
   destroyed: function () {
-    this._testTemplateField7 = 16;
+    this._destroyed17 = true;
   },
 });
 
 Template.onCreated(function () {
-  this.testTemplateField14 = 14;
+  this._globalCreated = true;
 });
 
 Template.onRendered(function () {
-  this.testTemplateField15 = 15;
+  this._globalRendered = true;
 });
 
 Template.onDestroyed(function () {
-  this.testTemplateField16 = 16;
+  this._globalDestroyed = true;
+});
+
+Template.clearEventMaps.events({
+  'click button': function () {
+    return false;
+  }
 });
 
 Tinytest.add('template-extension - get', function (test) {
@@ -198,33 +207,33 @@ Tinytest.add('template-extension - inheritsEventsFrom array', function (test) {
 
 Tinytest.add('template-extension - inheritsHooksFrom', function (test) {
   Template.testTemplate7.inheritsHooksFrom('testTemplate');
-  Template.testTemplate7.created();
-  test.equal(Template.testTemplate7._testTemplateField, 42);
+  var view = Blaze.render(Template.testTemplate7, $('body')[0]);
+  test.equal(view._templateInstance._testTemplateField, 42);
 });
 
 Tinytest.add('template-extension - inheritsHooksFrom array', function (test) {
   Template.testTemplate9.inheritsHooksFrom(['testTemplate', 'testTemplate8']);
-  Template.testTemplate9.created();
-  Template.testTemplate9.rendered();
-  test.equal(Template.testTemplate9._testTemplateField, 42);
-  test.equal(Template.testTemplate9._testTemplateField4, 14);
+  var view = Blaze.render(Template.testTemplate9, $('body')[0]);
+  test.equal(view._templateInstance._testTemplateField, 42);
+  Tracker.flush();
+  test.isTrue(view._templateInstance._rendered8);
 });
 
 Tinytest.add('template-extension - copyAs', function (test) {
   Template.testTemplate9.copyAs('testTemplate10');
-  Template.testTemplate10.created();
   test.equal(Blaze.toHTML(Template.testTemplate10),'<h1>copyAs</h1>');
-  test.equal(Template.testTemplate10._testTemplateField5, 14);
+  var view = Blaze.render(Template.testTemplate10, $('body')[0]);
+  test.isTrue(view._templateInstance._created9);
 });
 
 Tinytest.add('template-extension - copyAs array', function (test) {
   Template.testTemplate9.copyAs(['testTemplate11', 'testTemplate12']);
-  Template.testTemplate11.created();
-  Template.testTemplate12.created();
   test.equal(Blaze.toHTML(Template.testTemplate11),'<h1>copyAs</h1>');
   test.equal(Blaze.toHTML(Template.testTemplate12),'<h1>copyAs</h1>');
-  test.equal(Template.testTemplate11._testTemplateField5, 14);
-  test.equal(Template.testTemplate12._testTemplateField5, 14);
+  var view = Blaze.render(Template.testTemplate11, $('body')[0]);
+  test.isTrue(view._templateInstance._created9);
+  view = Blaze.render(Template.testTemplate12, $('body')[0]);
+  test.isTrue(view._templateInstance._created9);
 });
 
 Tinytest.add('template-extension - copyAs returns newly created template', function (test) {
@@ -254,27 +263,27 @@ Tinytest.add('template-extension - replaces array', function (test) {
 });
 
 Tinytest.add('template-extension - hooks', function (test) {
-  Template.testTemplate17.created();
-  test.equal(Template.testTemplate17._testTemplateField7, 14);
-  Template.testTemplate17.rendered();
-  test.equal(Template.testTemplate17._testTemplateField7, 15);
-  Template.testTemplate17.destroyed();
-  test.equal(Template.testTemplate17._testTemplateField7, 16);
+  var view = Blaze.render(Template.testTemplate17, $('body')[0]);
+  test.isTrue(view._templateInstance._created17);
+  Tracker.flush();
+  test.isTrue(view._templateInstance._rendered17);
+  Blaze.remove(view);
+  test.isTrue(view._templateInstance._destroyed17);
 });
 
-Tinytest.add('template-extension - onCreated', function (test) {
-  Template.testTemplate20.created();
-  test.equal(Template.testTemplate20.testTemplateField14, 14);
+Tinytest.add('template-extension - global hooks', function (test) {
+  var view = Blaze.render(Template.testTemplate20, $('body')[0]);
+  test.isTrue(view._templateInstance._globalCreated);
+  Tracker.flush();
+  test.isTrue(view._templateInstance._globalRendered);
+  Blaze.remove(view);
+  test.isTrue(view._templateInstance._globalDestroyed);
 });
 
-Tinytest.add('template-extension - onRendered', function (test) {
-  Template.testTemplate20.rendered();
-  test.equal(Template.testTemplate20.testTemplateField15, 15);
-});
-
-Tinytest.add('template-extension - onDestroyed', function (test) {
-  Template.testTemplate20.destroyed();
-  test.equal(Template.testTemplate20.testTemplateField16, 16);
+Tinytest.add('template-extension - clearEventMaps', function (test) {
+  test.equal(Template.clearEventMaps.__eventMaps.length, 1);
+  Template.clearEventMaps.clearEventMaps();
+  test.equal(Template.clearEventMaps.__eventMaps.length, 0);
 });
 
 Tinytest.add('template-extension - registerHelpers', function(test) {
@@ -287,6 +296,6 @@ Tinytest.add('template-extension - registerHelpers', function(test) {
     }
   });
 
-  test.equal(Blaze._globalHelpers['testHelper1'](), 'test1');
-  test.equal(Blaze._globalHelpers['testHelper2'](), 'test2');
+  test.equal(Blaze._globalHelpers.testHelper1(), 'test1');
+  test.equal(Blaze._globalHelpers.testHelper2(), 'test2');
 });

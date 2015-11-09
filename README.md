@@ -16,9 +16,26 @@ A smart package for Meteor that allows you to:
 * use `template.get(fieldName)` to access the first field named `fieldName` in the current or ancestor template instances.
 * pass a function to `Template.parentData(fun)` to get the first data context which passes the test.
 
-## Prerequisites
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-Requires Meteor 1.0+
+- [Installation](#installation)
+- [Compatibility](#compatibility)
+- [Template.forEach(callback)](#templateforeachcallback)
+- [Template.forEachCurrentlyRenderedInstance(callback)](#templateforeachcurrentlyrenderedinstancecallback)
+- [Template.onCreated / Template.onRendered / Template.onDestroyed](#templateoncreated--templateonrendered--templateondestroyed)
+- [hooks(options)](#hooksoptions)
+- [replaces(templateName)](#replacestemplatename)
+- [inheritsHelpersFrom(templateName), inheritsEventsFrom(templateName), and inheritsHooksFrom(templateName)](#inheritshelpersfromtemplatename-inheritseventsfromtemplatename-and-inheritshooksfromtemplatename)
+- [clearEventMaps()](#cleareventmaps)
+- [copyAs(newTemplateName)](#copyasnewtemplatename)
+- [template.parent(numLevels, includeBlockHelpers)](#templateparentnumlevels-includeblockhelpers)
+- [template.get(fieldName)](#templategetfieldname)
+- [Template.parentData(fun)](#templateparentdatafun)
+- [Contributors](#contributors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
 
@@ -26,9 +43,18 @@ Requires Meteor 1.0+
 $ meteor add aldeed:template-extension
 ```
 
+## Compatibility
+
+- Use a 3.x.x release with Meteor 1.0.x or Meteor 1.1.x
+- Use a 4.x.x release with Meteor 1.2+
+
 ## Template.forEach(callback)
 
 Call `callback` once for each defined template. Generally, you'll want to call this in a `Meteor.startup` function or sometime after all templates have been loaded.
+
+## Template.forEachCurrentlyRenderedInstance(callback)
+
+Call `callback` once for each template instance that is currently rendered.
 
 ## Template.onCreated / Template.onRendered / Template.onDestroyed
 
@@ -43,7 +69,7 @@ Template.onRendered(function () {
 
 ## hooks(options)
 
-Use this instead of setting created/rendered/destroyed property directly. You can call it multiple times to attach multiple hooks to the same template.
+An alternative syntax to `onCreated`, `onRendered`, and `onDestroyed`.
 
 ```js
 Template.foo.hooks({
@@ -82,9 +108,11 @@ Template.foo.hooks({
 *client.js*
 
 ```js
-Template.foo.bar = function () {
-  return "TEST";
-};
+Template.foo.helpers({
+  bar: function () {
+    return "TEST";
+  }
+});
 
 Template.foo.events({
   'click button': function (event, template) {
@@ -98,6 +126,8 @@ Template.foo2.replaces("foo");
 Whenever `{{> foo}}` is used, the contents of the `foo2` template will be shown instead. The `bar` helper defined on "foo" will be used to resolve `{{bar}}`. Clicking the button will still fire the event defined on "foo".
 
 This is useful when a package you are using defines a template for something and you'd like to adjust some things in that template for your app.
+
+NOTE: This simply swaps the render function. Helpers, callbacks, and events assigned to `foo2` will not fire when `{{> foo}}` is used. Only the `foo` helpers, callbacks, and events are used.
 
 ## inheritsHelpersFrom(templateName), inheritsEventsFrom(templateName), and inheritsHooksFrom(templateName)
 
@@ -146,6 +176,10 @@ Template.foo2.inheritsHooksFrom("foo");
 In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo". The "foo2" template will inherit the `foo.created` callback and log 'foo' to the console upon creation.
 
 Additionally, these methods can be called with an array of template names: `Template.foo2.inheritsHooksFrom(['foo', 'bar', 'baz']);`
+
+## clearEventMaps()
+
+After `Template.foo.events({...})` has been called one or more times, you can remove all the added event handlers by calling `Template.foo.clearEventMaps()`
 
 ## copyAs(newTemplateName)
 
@@ -204,7 +238,7 @@ they are not.
 ## template.get(fieldName)
 
 To not have to hard-code the number of levels when accessing parent template instances you can use
-`get(fieldName)` method which returns the value of the first field named `fieldName` in the current
+`get(fieldName)` method which returns the value of the first property named `fieldName` on the current
 or ancestor template instances, traversed in the hierarchical order. It traverses block helper template
 instances as well. This pattern makes it easier to refactor templates without having to worry about
 changes to number of levels.
@@ -223,7 +257,7 @@ var data = Template.parentData(function (data) {return data instanceof MyDocumen
 
 ## Contributors
 
-* @aldeed ([Support via Gratipay](https://gratipay.com/aldeed/))
+* @aldeed
 * @grabbou
 * @mitar
 * @jgladch
