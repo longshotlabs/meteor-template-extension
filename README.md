@@ -30,8 +30,8 @@ A smart package for Meteor that allows you to:
 - [inheritsHelpersFrom(templateName), inheritsEventsFrom(templateName), and inheritsHooksFrom(templateName)](#inheritshelpersfromtemplatename-inheritseventsfromtemplatename-and-inheritshooksfromtemplatename)
 - [clearEventMaps()](#cleareventmaps)
 - [copyAs(newTemplateName)](#copyasnewtemplatename)
-- [template.parent(numLevels, includeBlockHelpers)](#templateparentnumlevels-includeblockhelpers)
-- [template.get(fieldName)](#templategetfieldname)
+- [templateInstance.parent(numLevels, includeBlockHelpers)](#templateinstanceparentnumlevels-includeblockhelpers)
+- [templateInstance.get(fieldName)](#templateinstancegetfieldname)
 - [Template.parentData(fun)](#templateparentdatafun)
 - [Contributors](#contributors)
 
@@ -228,14 +228,14 @@ If copyAs is invoked with a string, it returns the newly created template.
 
 If copyAs is invoked with an array, it returns an array of newly created templates.
 
-## template.parent(numLevels, includeBlockHelpers)
+## templateInstance.parent(numLevels, includeBlockHelpers)
 
 On template instances you can now use `parent(numLevels)` method to access a parent template instance.
 `numLevels` is the number of levels beyond the current template instance to look. Defaults to 1.
 By default block helper template instances are skipped, but if `includeBlockHelpers` is set to true,
 they are not.
 
-## template.get(fieldName)
+## templateInstance.get(fieldName)
 
 To not have to hard-code the number of levels when accessing parent template instances you can use
 `get(fieldName)` method which returns the value of the first property named `fieldName` on the current
