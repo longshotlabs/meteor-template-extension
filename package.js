@@ -13,7 +13,10 @@ Package.onUse(function(api) {
     'blaze',
     'jquery',
     'underscore',
-    'tracker'
+    'tracker',
+    'timdown:rangy',
+    'jandres:mutation-summary',
+    'reactive-var'
   ], 'client');
 
   api.addFiles([
@@ -31,7 +34,8 @@ Package.onUse(function(api) {
     'lib/template-copy-as.js',
     'lib/template-instance-parent.js',
     'lib/template-instance-get.js',
-    'lib/template-parent-data-function.js'
+    'lib/template-parent-data-function.js',
+    'lib/template-children.js'
   ], 'client');
 });
 
