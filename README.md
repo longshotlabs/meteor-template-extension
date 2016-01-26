@@ -235,6 +235,12 @@ On template instances you can now use `parent(numLevels)` method to access a par
 By default block helper template instances are skipped, but if `includeBlockHelpers` is set to true,
 they are not.
 
+## templateInstance.parent(selector, includeBlockHelpers)
+
+You can also call `templateInstance.parent` with function as first argument. The function, known as selector, will be
+passed the current template being traversed. If it returns true, we return the template that is currently being traversed,
+otherwise, we traverse further up. We traverse up until there are no more templates, in which case, we return null.
+
 ## templateInstance.get(fieldName)
 
 To not have to hard-code the number of levels when accessing parent template instances you can use
