@@ -56,3 +56,22 @@
 <template name="noop">
   {{> Template.contentBlock}}
 </template>
+
+<template name="templateTier1">
+  {{> templateTier2}}
+  {{> templateTier2}}
+</template>
+
+<template name="templateTier2">
+  <div>
+    What?
+    {{> templateTier3}}
+    {{> templateTier3}}
+  </div>
+</template>
+
+<template name="templateTier3">
+  <div>
+    Hello
+  </div>
+</template>

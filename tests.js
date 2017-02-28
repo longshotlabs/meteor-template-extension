@@ -104,6 +104,33 @@ Template.testTemplate17.hooks({
   },
 });
 
+
+Template.templateTier1.hooks({
+  created: function() {
+    this.children = [];
+  },
+  rendered: function() {
+    this._renderedTemplateTier1 = true;
+  }
+});
+
+Template.templateTier2.hooks({
+  created: function() {
+    this.children = [];
+  },
+  rendered: function() {
+    this.parent().children.push(this);
+    this._renderedTemplateTier2 = true;
+  }
+});
+
+Template.templateTier3.hooks({
+  rendered: function() {
+    this.parent().children.push(this);
+    this._renderedTemplateTier3 = true;
+  }
+});
+
 Template.onCreated(function () {
   this._globalCreated = true;
 });
@@ -149,6 +176,30 @@ Tinytest.add('template-extension - parent', function (test) {
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: null, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateFieldNoop":50},{"_testTemplateField1":43},{"_testTemplateField":42}]');
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 2, includeBlockHelpers: false}), '[{"_testTemplateField3":44},{"_testTemplateField":42}]');
     test.equal(Blaze.toHTMLWithData(Template.testTemplate, {numLevels: 2, includeBlockHelpers: true}), '[{"_testTemplateField3":44},{"_testTemplateField1":43}]');
+
+    var multiTierView = Blaze.render(Template.templateTier1, $('body')[0]);
+    Tracker.flush();
+    test.isTrue(multiTierView._templateInstance._renderedTemplateTier1);
+    test.equal(multiTierView._templateInstance.parent(() => false), null);  // Should have no parent template.
+    test.equal(multiTierView._templateInstance.children.length, 2);
+    Tracker.flush();
+    test.isTrue(multiTierView._templateInstance.children[0]._renderedTemplateTier2);
+    test.isTrue(multiTierView._templateInstance.children[1]._renderedTemplateTier2);
+    Tracker.flush();
+    test.isTrue(multiTierView._templateInstance.children[0].children[0]._renderedTemplateTier3);
+    test.isTrue(multiTierView._templateInstance.children[0].children[1]._renderedTemplateTier3);
+    test.isTrue(multiTierView._templateInstance.children[1].children[0]._renderedTemplateTier3);
+    test.isTrue(multiTierView._templateInstance.children[1].children[1]._renderedTemplateTier3);
+    test.equal(multiTierView._templateInstance.children[0].children.length, 2);
+    test.equal(multiTierView._templateInstance.children[1].children.length, 2);
+
+    var grandChild = multiTierView._templateInstance.children[1].children[0];
+    test.equal(grandChild.parent((t) => t.view.name === "Template.templateTier2"),
+        multiTierView._templateInstance.children[1]);
+
+    var grandChild = multiTierView._templateInstance.children[1].children[0];
+    test.equal(grandChild.parent((t) => t.view.name === "Template.templateTier1"),
+        multiTierView._templateInstance);
   }
   finally {
     testingInstanceParent = false;
