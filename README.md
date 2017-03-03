@@ -13,7 +13,8 @@ A smart package for Meteor that allows you to:
 * inherit the events from another template.
 * extend abstract templates and overwrite their events/helpers.
 * use `template.parent(numLevels, includeBlockHelpers)` to access a parent template instance.
-* use `template.get(fieldName)` to access the first field named `fieldName` in the current or ancestor template instances.
+* use `template.get(propName)` to get the value of the first property named `propName` on the current or an ancestor template instance.
+* use `template.set(propName, value)` to set the value of the first property named `propName` on the current or an ancestor template instance.
 * pass a function to `Template.parentData(fun)` to get the first data context which passes the test.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -31,6 +32,7 @@ A smart package for Meteor that allows you to:
 - [clearEventMaps()](#cleareventmaps)
 - [copyAs(newTemplateName)](#copyasnewtemplatename)
 - [templateInstance.parent(numLevels, includeBlockHelpers)](#templateinstanceparentnumlevels-includeblockhelpers)
+- [templateInstance.parent(selector, includeBlockHelpers)](#templateinstanceparentselector-includeblockhelpers)
 - [templateInstance.get(fieldName)](#templateinstancegetfieldname)
 - [Template.parentData(fun)](#templateparentdatafun)
 - [Contributors](#contributors)
@@ -73,15 +75,15 @@ An alternative syntax to `onCreated`, `onRendered`, and `onDestroyed`.
 
 ```js
 Template.foo.hooks({
-  created: function () {
+  created() {
     console.log("foo created");
   },
-  rendered: function () {
+  rendered() {
     console.log("foo rendered");
   },
-  destroyed: function () {
+  destroyed() {
     console.log("foo destroyed");
-  }
+  },
 });
 ```
 
@@ -109,15 +111,15 @@ Template.foo.hooks({
 
 ```js
 Template.foo.helpers({
-  bar: function () {
+  bar() {
     return "TEST";
-  }
+  },
 });
 
 Template.foo.events({
-  'click button': function (event, template) {
+  'click button'(event, template) {
     console.log("foo button clicked");
-  }
+  },
 });
 
 Template.foo2.replaces("foo");
@@ -153,29 +155,32 @@ NOTE: This simply swaps the render function. Helpers, callbacks, and events assi
 *client.js*
 
 ```js
-Template.foo.bar = function () {
-  return "TEST";
-};
-
-Template.foo.events({
-  'click button': function (event, template) {
-    console.log("foo button clicked");
-  }
+Template.foo.helpers({
+  bar() {
+    return 'TEST';
+  },
 });
 
-Template.foo2.inheritsHelpersFrom("foo");
-Template.foo2.inheritsEventsFrom("foo");
+Template.foo.events({
+  'click button'(event, template) {
+    console.log('foo button clicked');
+  },
+});
 
-Template.foo.created = function () {
-  console.log('foo');
-};
+Template.foo.onCreated(function onCreated() {
+  console.log('foo created');
+});
 
-Template.foo2.inheritsHooksFrom("foo");
+Template.foo2.inheritsHelpersFrom('foo');
+Template.foo2.inheritsEventsFrom('foo');
+Template.foo2.inheritsHooksFrom('foo');
 ```
 
 In this example, both templates are rendered. Both use the `bar` helper defined on "foo" to resolve `{{bar}}`. Both fire the click event defined on "foo". The "foo2" template will inherit the `foo.created` callback and log 'foo' to the console upon creation.
 
 Additionally, these methods can be called with an array of template names: `Template.foo2.inheritsHooksFrom(['foo', 'bar', 'baz']);`
+
+Because of the different ways in which helpers, events, and hooks are stored, the ability to override them is different. Helpers are stored internally as a hash, which means that if you inherit a "name" helper and then call `myTemplate.helpers({ name: ... })`, the new "name" helper will overwrite the old helper. By contrast, events and hooks are stored in arrays, which means that you cannot override them easily. You may be able to achieve what you want with `clearEventMaps()` or looping through the events or hooks to somehow remove those you don't want.
 
 ## clearEventMaps()
 
@@ -202,27 +207,29 @@ After `Template.foo.events({...})` has been called one or more times, you can re
 
 ```js
 Template.abstract_foo.helpers({
-    images: function () {
-        return [];
-    }
+  images() {
+    return [];
+  }
 });
 
 Template.abstract_foo.copyAs(['foo', 'bar']);
 
 Template.foo.helpers({
-    images: function () {
-        return Meteor.call('getFooImages');
-    }
+  images() {
+    return Meteor.call('getFooImages');
+  }
 });
 
 Template.bar.helpers({
-    images: function () {
-        return Meteor.call('getBarImages');
-    }
+  images() {
+    return Meteor.call('getBarImages');
+  }
 });
 ```
 
 In this example, we defined "foo" and "bar" templates that get their HTML markup, events, and helpers from a base template, `abstract_foo`. We then override the `images` helper for "foo" and "bar" to provide template-specific images provided by different Meteor methods. Template.template.copyAs can accept either single template name (in string form), or an array of template names as shown in the above example.
+
+Calling `copyAs` is the same as calling `inheritsHelpersFrom`, `inheritsEventsFrom`, and `inheritsHooksFrom` and also copying the render function.
 
 If copyAs is invoked with a string, it returns the newly created template.
 
@@ -261,9 +268,19 @@ a given field. Or:
 var data = Template.parentData(function (data) {return data instanceof MyDocument;});
 ```
 
-## Contributors
+## Contributing
+
+When submitting a pull request, please add tests for any new features and make sure that all existing tests still pass.
+
+```bash
+$ meteor test-packages ./
+```
+
+### Contributors
 
 * @aldeed
 * @grabbou
 * @mitar
 * @jgladch
+* @merlinpatt
+* @JoeyAndres

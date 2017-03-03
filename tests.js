@@ -11,7 +11,7 @@ Template.testTemplate.onCreated(function () {
 });
 
 Template.testTemplate.helpers({
-  data: function () {
+  data() {
     return _.extend({}, this, {data1: 'foo'});
   }
 });
@@ -21,7 +21,7 @@ Template.testTemplate1.onCreated(function () {
 });
 
 Template.testTemplate1.helpers({
-  data: function () {
+  data() {
     // We add data2, but remove data1.
     return _.omit(_.extend({}, this, {data2: 'bar'}), 'data1');
   }
@@ -32,11 +32,11 @@ Template.testTemplate2.onCreated(function () {
 });
 
 Template.testTemplate2.helpers({
-  testInstanceGet: function () {
+  testInstanceGet() {
     if (testingInstanceGet) return EJSON.stringify(Template.instance().get(this.fieldName));
   },
 
-  testInstanceParent: function () {
+  testInstanceParent() {
     if (!testingInstanceParent) return;
 
     var ancestors = [];
@@ -57,75 +57,75 @@ Template.testTemplate2.helpers({
     return EJSON.stringify(ancestors);
   },
 
-  testData: function () {
+  testData() {
     if (testingData) return EJSON.stringify(Template.parentData(this.numLevels));
   }
 });
 
 Template.testTemplate3.events({
-  'click #button': function () {
+  'click #button'() {
     return true;
   }
 });
 
 Template.testTemplate4.events({
-  'mousemove .current': function () {
+  'mousemove .current'() {
     return true;
   }
 });
 
 Template.testTemplate8.hooks({
-  rendered: function () {
+  rendered() {
     this._rendered8 = true;
   }
 });
 
 Template.testTemplate9.hooks({
-  created: function () {
+  created() {
     this._created9 = true;
   }
 });
 
 Template.testTemplate9.helpers({
-  copyAsHelper: function () {
+  copyAsHelper() {
     return 'copyAs';
   }
 });
 
 Template.testTemplate17.hooks({
-  created: function () {
+  created() {
     this._created17 = true;
   },
-  rendered: function () {
+  rendered() {
     this._rendered17 = true;
   },
-  destroyed: function () {
+  destroyed() {
     this._destroyed17 = true;
   },
 });
 
 
 Template.templateTier1.hooks({
-  created: function() {
+  created() {
     this.children = [];
   },
-  rendered: function() {
+  rendered() {
     this._renderedTemplateTier1 = true;
   }
 });
 
 Template.templateTier2.hooks({
-  created: function() {
+  created() {
     this.children = [];
   },
-  rendered: function() {
+  rendered() {
     this.parent().children.push(this);
     this._renderedTemplateTier2 = true;
   }
 });
 
 Template.templateTier3.hooks({
-  rendered: function() {
+  rendered() {
     this.parent().children.push(this);
     this._renderedTemplateTier3 = true;
   }
@@ -144,9 +144,21 @@ Template.onDestroyed(function () {
 });
 
 Template.clearEventMaps.events({
-  'click button': function () {
+  'click button'() {
     return false;
   }
+});
+
+Template.setTest.onCreated(function () {
+  this.normalSet = 1;
+  this.reactiveSet = new ReactiveVar(1);
+});
+
+Template.setTestChild.events({
+  'click button'() {
+    Template.instance().set('normalSet', 2);
+    Template.instance().set('reactiveSet', 2);
+  },
 });
 
 Tinytest.add('template-extension - get', function (test) {
@@ -256,6 +268,45 @@ Tinytest.add('template-extension - inheritsEventsFrom array', function (test) {
   test.equal(Template.testTemplate4.__eventMaps[0], Template.testTemplate6.__eventMaps[1]);
 });
 
+Tinytest.add('template-extension - inheritsEventsFrom fires on the correct template', function (test) {
+  let clickedOriginal = false;
+  let clickedCopy = false;
+
+  Template.eventsTest.clearEventMaps();
+
+  Template.eventsTest.events({
+    'click button'() {
+      clickedOriginal = true;
+      return false;
+    },
+  });
+
+  delete Template.eventsTestCopy;
+  Template.eventsTest.copyAs('eventsTestCopy');
+
+  Template.eventsTestCopy.clearEventMaps();
+  Template.eventsTestCopy.events({
+    'click button'() {
+      clickedCopy = true;
+      return false;
+    },
+  });
+
+  let view = Blaze.render(Template.eventsTest, $('body')[0]);
+  view._templateInstance.$('button').click();
+
+  test.isFalse(clickedCopy);
+  test.isTrue(clickedOriginal);
+
+  clickedOriginal = false;
+  clickedCopy = false;
+  view = Blaze.render(Template.eventsTestCopy, $('body')[0]);
+  view._templateInstance.$('button').click();
+
+  test.isTrue(clickedCopy);
+  test.isFalse(clickedOriginal);
+});
+
 Tinytest.add('template-extension - inheritsHooksFrom', function (test) {
   Template.testTemplate7.inheritsHooksFrom('testTemplate');
   var view = Blaze.render(Template.testTemplate7, $('body')[0]);
@@ -339,14 +390,22 @@ Tinytest.add('template-extension - clearEventMaps', function (test) {
 
 Tinytest.add('template-extension - registerHelpers', function(test) {
   Template.registerHelpers({
-    testHelper1: function() {
+    testHelper1() {
       return 'test1';
     },
-    testHelper2: function() {
+    testHelper2() {
       return 'test2';
     }
   });
 
   test.equal(Blaze._globalHelpers.testHelper1(), 'test1');
   test.equal(Blaze._globalHelpers.testHelper2(), 'test2');
+});
+
+Tinytest.add('template-extension - set', function(test) {
+  let view = Blaze.render(Template.setTest, $('body')[0]);
+  view._templateInstance.$('button').click();
+
+  test.equal(view._templateInstance.normalSet, 2);
+  test.equal(view._templateInstance.reactiveSet.get(), 2);
 });
